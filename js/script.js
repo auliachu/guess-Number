@@ -54,16 +54,16 @@ window.addEventListener("load",function(){
         if(sessionStorage.getItem(sessionAnswerKey)===null){
             sessionStorage.setItem(sessionAnswerKey,'');
         }
-        if(sessionStorage.getItem(sessionUserAttemptsKey===null)){
+        if(sessionStorage.getItem(sessionUserAttemptsKey)===null){
             sessionStorage.setItem(sessionUserAttemptsKey,0);
         }
-        if(sessionStorage.getItem(sessionUserIsPlayingKey===null)){
+        if(sessionStorage.getItem(sessionUserIsPlayingKey)===null){
             sessionStorage.setItem(sessionUserIsPlayingKey,false);
         }
-        if(localStorage.getItem(localTotalVictoryKey===null)){
+        if(localStorage.getItem(localTotalVictoryKey)===null){
             localStorage.setItem(localTotalVictoryKey,0);
         }
-        if(localStorage.getItem(localMaximumAttemptKey===null)){
+        if(localStorage.getItem(localMaximumAttemptKey)===null){
             localStorage.setItem(localMaximumAttemptKey,0);
         }
     }else{
@@ -73,3 +73,75 @@ window.addEventListener("load",function(){
     localTotalVictoryField.innerText= localStorage.getItem(localTotalVictoryKey);
     localMaximumAttemptField.innerText= localStorage.getItem(localMaximumAttemptKey);
 })  
+
+playButton.addEventListener('click',function(){
+    sessionStorage.setItem(sessionAnswerKey, getAnswer());
+    sessionStorage.setItem(sessionUserIsPlayingKey, true);
+    beforeGameDisplay.setAttribute('hidden', true);
+    duringGameDisplay.removeAttribute('hidden');
+});
+
+answerButton1.addEventListener('click', function(){
+    sessionUserAnswerField.innerText +='1';
+    if(sessionUserAnswerField.innerText.length==3){
+        checkAnswer(sessionUserAnswerField.innerText);
+    };
+});
+
+answerButton2.addEventListener('click', function(){
+    sessionUserAnswerField.innerText +='2';
+    if(sessionUserAnswerField.innerText.length==3){
+        checkAnswer(sessionUserAnswerField.innerText);
+    }
+});
+
+answerButton3.addEventListener('click', function(){
+    sessionUserAnswerField.innerText +='3';
+    if(sessionUserAnswerField.innerText.length==3){
+        checkAnswer(sessionUserAnswerField.innerText);
+    }
+});
+
+function checkAnswer(userGuess){
+    const answer = sessionStorage.getItem(sessionAnswerKey);
+    if(userGuess==answer){
+        duringGameDisplay.setAttribute('hidden', true);
+        afterGameDisplay.removeAttribute('hidden');
+        sessionUserTrueAnswerField.innerText=answer;
+        updateScore();
+    }else{
+        const previousAttemptAmount = parseInt(sessionStorage.getItem(sessionUserAttemptsKey));
+        sessionStorage.setItem(sessionUserAttemptsKey, previousAttemptAmount + 1);
+        sessionUserAttemptsField.innerText = sessionStorage.getItem(sessionUserAttemptsKey);
+        sessionUserAnswerField.innerText = '';
+        sessionUserWrongAnswerField.innerText = userGuess;
+    }
+}
+
+function updateScore() {
+    const sessionAttemptsValue = parseInt(sessionStorage.getItem(sessionUserAttemptsKey));
+    const localAttemptsValue = parseInt(localStorage.getItem(localMaximumAttemptKey));
+    if (sessionAttemptsValue > localAttemptsValue) {
+      localStorage.setItem(localMaximumAttemptKey, sessionAttemptsValue);
+      localMaximumAttemptField.innerText = sessionAttemptsValue;
+    }
+    const previousTotalVictoryAmount = parseInt(localStorage.getItem(localTotalVictoryKey));
+    localStorage.setItem(localTotalVictoryKey, previousTotalVictoryAmount + 1);
+    localTotalVictoryField.innerText = localStorage.getItem(localTotalVictoryKey);
+}
+
+window.addEventListener('beforeunload', function () {
+    sessionUserAnswerField.innerText = '';
+    sessionUserWrongAnswerField.innerText = '';
+    sessionStorage.setItem(sessionUserAttemptsKey, 0);
+    sessionUserAttemptsField.innerText = sessionStorage.getItem(sessionUserAttemptsKey);
+});
+
+destrroyDataButton.addEventListener('click', function(){
+    sessionStorage.removeItem(sessionAnswerKey);
+    sessionStorage.removeItem(sessionUserAttemptsKey);
+    sessionStorage.removeItem(sessionUserIsPlayingKey);
+    sessionStorage.removeItem(localTotalVictoryKey);
+    sessionStorage.removeItem(localMaximumAttemptKey);
+    alert('Mohon me-refresh halaman ini kembali');
+});
